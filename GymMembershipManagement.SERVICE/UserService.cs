@@ -81,18 +81,21 @@ namespace GymMembershipManagement.SERVICE
 
             _logger.LogInformation("Login successful for: {Email}", email);
 
-            // Generate JWT token
-            var token = _tokenService.GenerateToken(user);
+            // Get fresh user data with latest roles from database
+            var freshUser = await _userRepository.GetByIdWithPersonAsync(user.UserId);
+
+            // Generate JWT token with fresh role data
+            var token = _tokenService.GenerateToken(freshUser!);
 
             return new LoginResponseDTO
             {
-                UserId = user.UserId,
-                Username = user.Username,
-                Email = user.Email,
-                FirstName = user.Person?.FirstName ?? "",
-                LastName = user.Person?.LastName ?? "",
-                RegistrationDate = user.RegistrationDate,
-                Roles = user.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>(),
+                UserId = freshUser.UserId,
+                Username = freshUser.Username,
+                Email = freshUser.Email,
+                FirstName = freshUser.Person?.FirstName ?? "",
+                LastName = freshUser.Person?.LastName ?? "",
+                RegistrationDate = freshUser.RegistrationDate,
+                Roles = freshUser.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>(),
                 Token = token
             };
         }
