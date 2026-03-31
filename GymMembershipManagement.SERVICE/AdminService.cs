@@ -113,12 +113,22 @@ namespace GymMembershipManagement.SERVICE
 
         public async Task AssignRoleToUser(AssignRoleDTO dto)
         {
-            var user = await _userRepository.GetByIdAsync(dto.UserId);
+            var user = await _userRepository.GetByIdWithPersonAsync(dto.UserId);
             if (user == null) throw new KeyNotFoundException($"User with ID {dto.UserId} not found");
 
             var role = await _roleRepository.GetByIdAsync(dto.RoleId);
             if (role == null) throw new KeyNotFoundException($"Role with ID {dto.RoleId} not found");
 
+            // Remove all existing roles
+            if (user.UserRoles != null && user.UserRoles.Any())
+            {
+                foreach (var userRole in user.UserRoles.ToList())
+                {
+                    await _roleRepository.RemoveRoleFromUserAsync(dto.UserId, userRole.RoleId);
+                }
+            }
+
+            // Assign the new role
             await _roleRepository.AssignRoleToUserAsync(dto.UserId, dto.RoleId);
         }
 
