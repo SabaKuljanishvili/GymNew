@@ -4,7 +4,11 @@ using GymMembershipManagement.DATA;
 using GymMembershipManagement.SERVICE;
 using GymMembershipManagement.SERVICE.Interfaces;
 using GymMembershipManagement.SERVICE.Mapping;
+using GymMembershipManagement.SERVICE.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace GymMembershipManagement.API
 {
@@ -24,6 +28,26 @@ namespace GymMembershipManagement.API
                           .AllowAnyHeader();  // ნებას რთავს ნებისმიერ Header-ს (Content-Type და ა.შ.)
                 });
             });
+
+            // JWT Authentication
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+            var secretKey = jwtSettings["SecretKey"];
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
+                        ValidateIssuer = true,
+                        ValidIssuer = jwtSettings["Issuer"],
+                        ValidateAudience = true,
+                        ValidAudience = jwtSettings["Audience"],
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
 
             // DB connection
             builder.Services.AddDbContext<GymDbContext>(options =>
@@ -65,11 +89,16 @@ namespace GymMembershipManagement.API
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IMembershipService, MembershipService>();
             builder.Services.AddScoped<ITrainerService, TrainerService>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
 
             var app = builder.Build();
 
             // 2. CORS Middleware-ის გააქტიურება (მნიშვნელოვანია იყოს Routing-სა და Authorization-ს შორის)
             app.UseCors("AllowAll");
+
+            // Authentication and Authorization middleware
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             // ავტომატური მიგრაციის ბლოკი
             using (var scope = app.Services.CreateScope())
@@ -97,6 +126,7 @@ namespace GymMembershipManagement.API
 
             app.UseStaticFiles();
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
 

@@ -26,11 +26,11 @@ namespace GymMembershipManagement.API.Controllers
 
         // Unauthorized
         [HttpPost("Login")]
-        public async Task<ActionResult<UserDTO>> Login([FromBody] LoginModel model)
+        public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var user = await _userService.Login(model.Email, model.Password);
-            return Ok(user);
+            var response = await _userService.Login(model.Email, model.Password);
+            return Ok(response);
         }
 
         // Admin, Trainer, Member

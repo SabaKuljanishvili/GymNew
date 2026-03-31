@@ -2,6 +2,7 @@ using GymMembershipManagement.DAL.Repositories;
 using GymMembershipManagement.DATA.Entities;
 using GymMembershipManagement.SERVICE.DTOs.User;
 using GymMembershipManagement.SERVICE.Interfaces;
+using GymMembershipManagement.SERVICE.Services;
 using Microsoft.Extensions.Logging;
 
 namespace GymMembershipManagement.SERVICE
@@ -11,13 +12,15 @@ namespace GymMembershipManagement.SERVICE
         private readonly IUserRepository _userRepository;
         private readonly IPersonRepository _personRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly ITokenService _tokenService;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(IUserRepository userRepository, IPersonRepository personRepository, IRoleRepository roleRepository, ILogger<UserService> logger)
+        public UserService(IUserRepository userRepository, IPersonRepository personRepository, IRoleRepository roleRepository, ITokenService tokenService, ILogger<UserService> logger)
         {
             _userRepository = userRepository;
             _personRepository = personRepository;
             _roleRepository = roleRepository;
+            _tokenService = tokenService;
             _logger = logger;
         }
 
@@ -57,7 +60,7 @@ namespace GymMembershipManagement.SERVICE
             _logger.LogInformation("User registered successfully: {Email}", model.Email);
         }
 
-        public async Task<UserDTO> Login(string email, string password)
+        public async Task<LoginResponseDTO> Login(string email, string password)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
                 throw new ArgumentException("Email and password are required.");
@@ -77,7 +80,21 @@ namespace GymMembershipManagement.SERVICE
             }
 
             _logger.LogInformation("Login successful for: {Email}", email);
-            return MapToDTO(user);
+
+            // Generate JWT token
+            var token = _tokenService.GenerateToken(user);
+
+            return new LoginResponseDTO
+            {
+                UserId = user.UserId,
+                Username = user.Username,
+                Email = user.Email,
+                FirstName = user.Person?.FirstName ?? "",
+                LastName = user.Person?.LastName ?? "",
+                RegistrationDate = user.RegistrationDate,
+                Roles = user.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>(),
+                Token = token
+            };
         }
 
         public async Task<UserDTO> GetProfile(int userId)
