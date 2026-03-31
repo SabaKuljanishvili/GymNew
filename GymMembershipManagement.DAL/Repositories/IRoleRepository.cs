@@ -15,6 +15,7 @@ namespace GymMembershipManagement.DAL.Repositories
         Task AssignRoleToUserAsync(int userId, int roleId);
         Task RemoveRoleFromUserAsync(int userId, int roleId);
         Task<bool> UserRoleExistsAsync(int userId, int roleId);
+        Task<Role?> GetByRoleNameAsync(string roleName);
     }
     public class RoleRepository : BaseRepository<Role>, IRoleRepository
     {
@@ -49,6 +50,12 @@ namespace GymMembershipManagement.DAL.Repositories
         {
             return await _context.UserRoles
                 .AnyAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+        }
+
+        public async Task<Role?> GetByRoleNameAsync(string roleName)
+        {
+            return await _context.Roles
+                .FirstOrDefaultAsync(r => r.RoleName == roleName);
         }
     }
 }

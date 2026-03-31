@@ -65,6 +65,14 @@ namespace GymMembershipManagement.API.Controllers
             return Ok(trainers);
         }
 
+        // Admin only
+        [HttpGet("GetAllAdmins")]
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllAdmins()
+        {
+            var admins = await _adminService.GetAllAdmins();
+            return Ok(admins);
+        }
+
         // Admin only — Assign a role to a user (this is how a user becomes a Trainer)
         [HttpPost("AssignRole")]
         public async Task<IActionResult> AssignRole([FromBody] AssignRoleDTO dto)

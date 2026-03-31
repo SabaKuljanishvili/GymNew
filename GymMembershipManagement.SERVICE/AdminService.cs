@@ -39,6 +39,13 @@ namespace GymMembershipManagement.SERVICE
             };
             await _userRepository.AddAsync(user);
 
+            // Assign Customer role to the new user
+            var customerRole = await _roleRepository.GetByRoleNameAsync("Customer");
+            if (customerRole != null)
+            {
+                await _roleRepository.AssignRoleToUserAsync(user.UserId, customerRole.RoleId);
+            }
+
             return new UserDTO
             {
                 UserId = user.UserId,
@@ -48,6 +55,7 @@ namespace GymMembershipManagement.SERVICE
                 FirstName = person.FirstName,
                 LastName = person.LastName
             };
+
         }
 
         public async Task<UserDTO> GetUserById(int userId)
@@ -94,6 +102,12 @@ namespace GymMembershipManagement.SERVICE
         public async Task<IEnumerable<UserDTO>> GetAllTrainers()
         {
             var users = await _userRepository.GetUsersByRoleAsync("Trainer");
+            return users.Select(MapToDTO);
+        }
+
+        public async Task<IEnumerable<UserDTO>> GetAllAdmins()
+        {
+            var users = await _userRepository.GetUsersByRoleAsync("Admin");
             return users.Select(MapToDTO);
         }
 

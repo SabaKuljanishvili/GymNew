@@ -10,6 +10,7 @@ namespace GymMembershipManagement.SERVICE.Interfaces
         Task RemoveUser(int userId);
         Task<IEnumerable<UserDTO>> GetAllMembers();
         Task<IEnumerable<UserDTO>> GetAllTrainers();
+        Task<IEnumerable<UserDTO>> GetAllAdmins();
 
         // Role assignment
         Task AssignRoleToUser(AssignRoleDTO dto);

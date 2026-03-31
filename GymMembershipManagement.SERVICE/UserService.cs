@@ -10,12 +10,14 @@ namespace GymMembershipManagement.SERVICE
     {
         private readonly IUserRepository _userRepository;
         private readonly IPersonRepository _personRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(IUserRepository userRepository, IPersonRepository personRepository, ILogger<UserService> logger)
+        public UserService(IUserRepository userRepository, IPersonRepository personRepository, IRoleRepository roleRepository, ILogger<UserService> logger)
         {
             _userRepository = userRepository;
             _personRepository = personRepository;
+            _roleRepository = roleRepository;
             _logger = logger;
         }
 
@@ -44,6 +46,14 @@ namespace GymMembershipManagement.SERVICE
                 PersonId = person.PersonId
             };
             await _userRepository.AddAsync(user);
+
+            // Assign Customer role to the new user
+            var customerRole = await _roleRepository.GetByRoleNameAsync("Customer");
+            if (customerRole != null)
+            {
+                await _roleRepository.AssignRoleToUserAsync(user.UserId, customerRole.RoleId);
+            }
+
             _logger.LogInformation("User registered successfully: {Email}", model.Email);
         }
 
