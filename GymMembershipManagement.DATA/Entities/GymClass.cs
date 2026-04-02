@@ -18,7 +18,7 @@ namespace GymMembershipManagement.DATA.Entities
 
         public string? Description { get; set; }
 
-        public int? Capacity { get; set; }
+        public int? Duration { get; set; }
 
         // GymClass => Schedules
         public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();

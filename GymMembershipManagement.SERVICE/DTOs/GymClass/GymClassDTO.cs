@@ -11,6 +11,6 @@ namespace GymMembershipManagement.SERVICE.DTOs.GymClass
         public int Id { get; set; }
         public string GymClassName { get; set; } = null!;
         public string? Description { get; set; }
-        public int? Capacity { get; set; }
+        public int? Duration { get; set; }
     }
 }
