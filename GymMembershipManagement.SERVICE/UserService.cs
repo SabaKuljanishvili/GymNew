@@ -95,6 +95,7 @@ namespace GymMembershipManagement.SERVICE
                 FirstName = freshUser.Person?.FirstName ?? "",
                 LastName = freshUser.Person?.LastName ?? "",
                 RegistrationDate = freshUser.RegistrationDate,
+                RoleId = freshUser.UserRoles?.FirstOrDefault()?.RoleId,
                 Roles = freshUser.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>(),
                 Token = token
             };
@@ -179,7 +180,8 @@ namespace GymMembershipManagement.SERVICE
             Email = user.Email,
             RegistrationDate = user.RegistrationDate,
             FirstName = user.Person?.FirstName,
-            LastName = user.Person?.LastName
+            LastName = user.Person?.LastName,
+            RoleId = user.UserRoles?.FirstOrDefault()?.RoleId
         };
     }
 }

@@ -8,6 +8,7 @@ namespace GymMembershipManagement.SERVICE.DTOs.User
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public DateTime RegistrationDate { get; set; }
+        public int? RoleId { get; set; }
         public List<string> Roles { get; set; } = new();
         public string Token { get; set; } = null!;
     }
