@@ -1,6 +1,7 @@
 ﻿using GymMembershipManagement.DATA;
 using GymMembershipManagement.DATA.Entities;
 using GymMembershipManagement.DATA.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace GymMembershipManagement.DAL.Repositories
 {
     public interface IGymClassRepository : IBaseRepository<GymClass>
     {
+        Task<IEnumerable<GymClass>> GetAllWithDetailsAsync();
     }
 
     public class GymClassRepository : BaseRepository<GymClass>, IGymClassRepository
@@ -21,5 +23,11 @@ namespace GymMembershipManagement.DAL.Repositories
             _context = context;
         }
 
+        public async Task<IEnumerable<GymClass>> GetAllWithDetailsAsync()
+        {
+            return await _context.GymClasses
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }

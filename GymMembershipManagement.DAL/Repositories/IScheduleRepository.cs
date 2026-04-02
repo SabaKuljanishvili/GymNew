@@ -23,8 +23,10 @@ namespace GymMembershipManagement.DAL.Repositories
         public async Task<IEnumerable<Schedule>> GetByTrainerIdAsync(int trainerId)
         {
             return await _context.Schedules
+                .AsNoTracking()
                 .Include(s => s.GymClass)
-                .Include(s => s.User).ThenInclude(u => u!.Person)
+                .Include(s => s.User)
+                    .ThenInclude(u => u!.Person)
                 .Where(s => s.UserId == trainerId)
                 .ToListAsync();
         }
@@ -32,8 +34,10 @@ namespace GymMembershipManagement.DAL.Repositories
         public async Task<IEnumerable<Schedule>> GetAllWithDetailsAsync()
         {
             return await _context.Schedules
+                .AsNoTracking()
                 .Include(s => s.GymClass)
-                .Include(s => s.User).ThenInclude(u => u!.Person)
+                .Include(s => s.User)
+                    .ThenInclude(u => u!.Person)
                 .ToListAsync();
         }
     }

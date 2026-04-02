@@ -56,10 +56,10 @@ namespace GymMembershipManagement.DATA
 
             // Seed GymClasses
             modelBuilder.Entity<GymClass>().HasData(
-                new GymClass { Id = 1, Description = "a combat sport and ancient martial art involving two unarmed individuals grappling, throwing, and pinning an opponent to the ground to win", GymClassName = "Wrestling", },
-                new GymClass { Id = 2, Description = "a modern Japanese martial art and Olympic sport founded by Jigoro Kano in 1882, focusing on unarmed combat, grappling, and throwing techniques", GymClassName = "judo",  },
-                new GymClass { Id = 3, Description = "an Okinawan-originated, unarmed martial art focused on self-defense through striking techniques—including punching, kicking, knee/elbow strikes, and open-hand techniques", GymClassName = "Karate",  },
-                new GymClass { Id = 4, Description = "a combat sport where two athletes, matched by weight, fight by landing punches with gloved fists while avoiding blows, typically in 3-12 rounds", GymClassName = "Boxing",  }
+                new GymClass { Id = 1, GymClassName = "Wrestling" },
+                new GymClass { Id = 2, GymClassName = "Judo" },
+                new GymClass { Id = 3, GymClassName = "Karate" },
+                new GymClass { Id = 4, GymClassName = "Boxing" }
             );
         }
     }   

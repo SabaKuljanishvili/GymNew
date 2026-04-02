@@ -24,7 +24,7 @@ namespace GymMembershipManagement.SERVICE
         }
         public async Task<IEnumerable<GymClassDto>> GetAllGymClassesAsync()
         {
-            var gymClasses = await _repository.GetAllAsync();
+            var gymClasses = await _repository.GetAllWithDetailsAsync();
             return _mapper.Map<IEnumerable<GymClassDto>>(gymClasses);
         }
 
