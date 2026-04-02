@@ -16,6 +16,8 @@ namespace GymMembershipManagement.DATA.Entities
         [Required]
         public string GymClassName { get; set; } = null!;
 
+        public string? Description { get; set; }
+
         public int? Capacity { get; set; }
 
         // GymClass => Schedules
