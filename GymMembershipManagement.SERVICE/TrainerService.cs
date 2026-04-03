@@ -40,5 +40,28 @@ namespace GymMembershipManagement.SERVICE
                 GymClassName = s.GymClass?.GymClassName
             });
         }
+
+        public async Task<bool> UpdateSchedule(UpdateScheduleDTO dto)
+        {
+            var schedule = await _scheduleRepository.GetByIdAsync(dto.Id);
+            if (schedule == null) return false;
+
+            schedule.UserId = dto.UserId;
+            schedule.ScheduledDateTime = dto.ScheduledDateTime;
+            schedule.Duration = dto.Duration;
+            schedule.GymClassId = dto.GymClassId;
+
+            await _scheduleRepository.UpdateAsync(schedule);
+            return true;
+        }
+
+        public async Task<bool> DeleteSchedule(int scheduleId)
+        {
+            var schedule = await _scheduleRepository.GetByIdAsync(scheduleId);
+            if (schedule == null) return false;
+
+            await _scheduleRepository.DeleteAsync(scheduleId);
+            return true;
+        }
     }
 }
