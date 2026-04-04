@@ -33,6 +33,14 @@ namespace GymMembershipManagement.API.Controllers
         }
 
         // Admin only
+        [HttpGet("AllSchedules")]
+        public async Task<ActionResult<IEnumerable<ScheduleDTO>>> GetAllSchedules()
+        {
+            var schedules = await _trainerService.GetAllSchedules();
+            return Ok(schedules);
+        }
+
+        // Admin only
         [HttpPut("UpdateSchedule")]
         public async Task<ActionResult<bool>> UpdateSchedule([FromBody] UpdateScheduleDTO dto)
         {

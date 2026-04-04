@@ -41,6 +41,20 @@ namespace GymMembershipManagement.SERVICE
             });
         }
 
+        public async Task<IEnumerable<ScheduleDTO>> GetAllSchedules()
+        {
+            var schedules = await _scheduleRepository.GetAllWithDetailsAsync();
+            return schedules.Select(s => new ScheduleDTO
+            {
+                Id = s.Id,
+                UserId = s.UserId,
+                ScheduledDateTime = s.ScheduledDateTime,
+                Duration = s.Duration,
+                GymClassId = s.GymClassId,
+                GymClassName = s.GymClass?.GymClassName
+            });
+        }
+
         public async Task<bool> UpdateSchedule(UpdateScheduleDTO dto)
         {
             var schedule = await _scheduleRepository.GetByIdAsync(dto.Id);
