@@ -1,3 +1,4 @@
+using GymMembershipManagement.API.Services;
 using GymMembershipManagement.SERVICE.DTOs.User;
 using GymMembershipManagement.SERVICE.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +12,12 @@ namespace GymMembershipManagement.API.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
+        private readonly IRoleIntegrityService _roleIntegrityService;
 
-        public AdminController(IAdminService adminService)
+        public AdminController(IAdminService adminService, IRoleIntegrityService roleIntegrityService)
         {
             _adminService = adminService;
+            _roleIntegrityService = roleIntegrityService;
         }
 
         // Required: Admin only - Create new user
@@ -108,6 +111,22 @@ namespace GymMembershipManagement.API.Controllers
         {
             await _adminService.DeleteTrainer(userId);
             return Ok("Trainer deleted successfully.");
+        }
+
+        // Required: Admin only - Fix database role integrity
+        // This endpoint ensures every user has exactly one role
+        // Users without roles get assigned "Customer" role
+        // Users with multiple roles keep the first one
+        [HttpPost("FixRoleIntegrity")]
+        public async Task<IActionResult> FixRoleIntegrity()
+        {
+            var fixedCount = await _roleIntegrityService.FixUserRolesAsync();
+            return Ok(new 
+            { 
+                message = "Role integrity check completed",
+                fixedCount = fixedCount,
+                details = "Users without roles assigned 'Customer'. Users with multiple roles reduced to one."
+            });
         }
     }
 }

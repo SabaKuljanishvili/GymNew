@@ -90,6 +90,7 @@ namespace GymMembershipManagement.API
             builder.Services.AddScoped<IMembershipService, MembershipService>();
             builder.Services.AddScoped<ITrainerService, TrainerService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<GymMembershipManagement.API.Services.IRoleIntegrityService, GymMembershipManagement.API.Services.RoleIntegrityService>();
 
             var app = builder.Build();
 

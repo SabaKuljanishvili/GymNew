@@ -41,12 +41,14 @@ namespace GymMembershipManagement.SERVICE.Services
                 new Claim(ClaimTypes.Name, user.Username)
             };
 
-            // Add roles as claims
+            // Add only the primary (first) role as a claim
+            // Each user should have exactly one role
             if (user.UserRoles != null && user.UserRoles.Any())
             {
-                foreach (var userRole in user.UserRoles)
+                var primaryRole = user.UserRoles.FirstOrDefault();
+                if (primaryRole != null)
                 {
-                    claims.Add(new Claim(ClaimTypes.Role, userRole.Role.RoleName));
+                    claims.Add(new Claim(ClaimTypes.Role, primaryRole.Role.RoleName));
                 }
             }
 

@@ -87,6 +87,9 @@ namespace GymMembershipManagement.SERVICE
             // Generate JWT token with fresh role data
             var token = _tokenService.GenerateToken(freshUser!);
 
+            // Ensure user has exactly one role (the primary one)
+            var primaryRole = freshUser!.UserRoles?.FirstOrDefault()?.Role.RoleName ?? "Customer";
+
             return new LoginResponseDTO
             {
                 UserId = freshUser.UserId,
@@ -96,7 +99,7 @@ namespace GymMembershipManagement.SERVICE
                 LastName = freshUser.Person?.LastName ?? "",
                 RegistrationDate = freshUser.RegistrationDate,
                 RoleId = freshUser.UserRoles?.FirstOrDefault()?.RoleId,
-                Roles = freshUser.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>(),
+                Roles = new List<string> { primaryRole },  // Only return primary role
                 Token = token
             };
         }

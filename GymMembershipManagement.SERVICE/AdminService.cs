@@ -119,7 +119,7 @@ namespace GymMembershipManagement.SERVICE
             var role = await _roleRepository.GetByIdAsync(dto.RoleId);
             if (role == null) throw new KeyNotFoundException($"Role with ID {dto.RoleId} not found");
 
-            // Remove all existing roles
+            // Remove all existing roles first
             if (user.UserRoles != null && user.UserRoles.Any())
             {
                 foreach (var userRole in user.UserRoles.ToList())
@@ -130,6 +130,13 @@ namespace GymMembershipManagement.SERVICE
 
             // Assign the new role
             await _roleRepository.AssignRoleToUserAsync(dto.UserId, dto.RoleId);
+
+            // Verify user now has exactly one role
+            var updatedUser = await _userRepository.GetByIdWithPersonAsync(dto.UserId);
+            if (updatedUser?.UserRoles?.Count != 1)
+            {
+                throw new InvalidOperationException($"User role assignment failed. User should have exactly one role.");
+            }
         }
 
         public async Task RemoveRoleFromUser(AssignRoleDTO dto)
