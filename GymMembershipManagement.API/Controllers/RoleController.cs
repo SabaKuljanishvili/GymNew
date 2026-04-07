@@ -1,11 +1,13 @@
 using GymMembershipManagement.SERVICE.DTOs.Role;
 using GymMembershipManagement.SERVICE.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymMembershipManagement.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]  // All endpoints in this controller require Admin role
     public class RoleController : ControllerBase
     {
         private readonly IRoleService _roleService;
@@ -15,6 +17,7 @@ namespace GymMembershipManagement.API.Controllers
             _roleService = roleService;
         }
 
+        // Required: Admin only - Get all roles
         [HttpGet("GetAllRoles")]
         public async Task<ActionResult<IEnumerable<RoleDto>>> GetAllRoles()
         {
@@ -22,6 +25,7 @@ namespace GymMembershipManagement.API.Controllers
             return Ok(roles);
         }
 
+        // Required: Admin only - Get role by ID
         [HttpGet("GetRoleById/{id:int}")]
         public async Task<ActionResult<RoleDto>> GetRoleById(int id)
         {
@@ -30,6 +34,7 @@ namespace GymMembershipManagement.API.Controllers
             return Ok(role);
         }
 
+        // Required: Admin only - Create new role
         [HttpPost("CreateRole")]
         public async Task<ActionResult<RoleDto>> CreateRole([FromBody] CreateRoleDto model)
         {
@@ -38,6 +43,7 @@ namespace GymMembershipManagement.API.Controllers
             return CreatedAtAction(nameof(GetRoleById), new { id = role.RoleId }, role);
         }
 
+        // Required: Admin only - Update role
         [HttpPut("UpdateRole/{id:int}")]
         public async Task<IActionResult> UpdateRole(int id, [FromBody] UpdateRoleDto model)
         {
@@ -47,7 +53,7 @@ namespace GymMembershipManagement.API.Controllers
             return NoContent();
         }
 
-        // FIX: Was "UpdateRoleDto/{id}" — wrong route, now "DeleteRole/{id}"
+        // Required: Admin only - Delete role
         [HttpDelete("DeleteRole/{id:int}")]
         public async Task<IActionResult> DeleteRole(int id)
         {

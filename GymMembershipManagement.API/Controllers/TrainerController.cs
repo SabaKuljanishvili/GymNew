@@ -1,5 +1,6 @@
 using GymMembershipManagement.SERVICE.DTOs.Schedule;
 using GymMembershipManagement.SERVICE.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymMembershipManagement.API.Controllers
@@ -15,8 +16,9 @@ namespace GymMembershipManagement.API.Controllers
             _trainerService = trainerService;
         }
 
-        // Admin only
+        // Required: Admin only - Assign trainer to schedule
         [HttpPost("AssignSchedule")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<bool>> AssignSchedule([FromBody] AssignScheduleDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -24,24 +26,27 @@ namespace GymMembershipManagement.API.Controllers
             return Ok(result);
         }
 
-        // Admin only
+        // Required: Admin, Trainer - Get trainer's schedules
         [HttpGet("Schedules/{trainerId:int}")]
+        [Authorize(Roles = "Admin,Trainer")]
         public async Task<ActionResult<IEnumerable<ScheduleDTO>>> GetSchedulesByTrainer(int trainerId)
         {
             var schedules = await _trainerService.GetSchedulesByTrainer(trainerId);
             return Ok(schedules);
         }
 
-        // Admin only
+        // Required: Admin only - Get all schedules
         [HttpGet("AllSchedules")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<ScheduleDTO>>> GetAllSchedules()
         {
             var schedules = await _trainerService.GetAllSchedules();
             return Ok(schedules);
         }
 
-        // Admin only
+        // Required: Admin, Trainer - Update schedule
         [HttpPut("UpdateSchedule")]
+        [Authorize(Roles = "Admin,Trainer")]
         public async Task<ActionResult<bool>> UpdateSchedule([FromBody] UpdateScheduleDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -50,8 +55,9 @@ namespace GymMembershipManagement.API.Controllers
             return Ok(result);
         }
 
-        // Admin only
+        // Required: Admin only - Delete schedule
         [HttpDelete("DeleteSchedule/{scheduleId:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<bool>> DeleteSchedule(int scheduleId)
         {
             var result = await _trainerService.DeleteSchedule(scheduleId);

@@ -1,11 +1,13 @@
 using GymMembershipManagement.SERVICE.DTOs.User;
 using GymMembershipManagement.SERVICE.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymMembershipManagement.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]  // All endpoints in this controller require Admin role
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
@@ -15,7 +17,7 @@ namespace GymMembershipManagement.API.Controllers
             _adminService = adminService;
         }
 
-        // Admin only
+        // Required: Admin only - Create new user
         [HttpPost("AddUser")]
         public async Task<ActionResult<UserDTO>> AddUser([FromBody] UserRegisterModel model)
         {
@@ -24,7 +26,7 @@ namespace GymMembershipManagement.API.Controllers
             return Ok(user);
         }
 
-        // Admin only
+        // Required: Admin only - Get user details
         [HttpGet("GetUserById/{userId:int}")]
         public async Task<ActionResult<UserDTO>> GetUserById(int userId)
         {
@@ -32,7 +34,7 @@ namespace GymMembershipManagement.API.Controllers
             return Ok(user);
         }
 
-        // Admin only
+        // Required: Admin only - Update user details
         [HttpPut("UpdateUser/{userId:int}")]
         public async Task<IActionResult> UpdateUserDetails(int userId, [FromBody] UpdateUserModel model)
         {
@@ -41,7 +43,7 @@ namespace GymMembershipManagement.API.Controllers
             return Ok("User updated successfully.");
         }
 
-        // Admin only
+        // Required: Admin only - Delete user
         [HttpDelete("RemoveUser/{userId:int}")]
         public async Task<IActionResult> RemoveUser(int userId)
         {
@@ -49,7 +51,7 @@ namespace GymMembershipManagement.API.Controllers
             return Ok("User removed successfully.");
         }
 
-        // Admin, Trainer
+        // Required: Admin only - Get all members
         [HttpGet("GetAllMembers")]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllMembers()
         {
@@ -57,7 +59,7 @@ namespace GymMembershipManagement.API.Controllers
             return Ok(members);
         }
 
-        // Admin, Trainer, Member
+        // Required: Admin only - Get all trainers
         [HttpGet("GetAllTrainers")]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllTrainers()
         {
@@ -65,7 +67,7 @@ namespace GymMembershipManagement.API.Controllers
             return Ok(trainers);
         }
 
-        // Admin only
+        // Required: Admin only - Get all admins
         [HttpGet("GetAllAdmins")]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllAdmins()
         {
@@ -73,7 +75,7 @@ namespace GymMembershipManagement.API.Controllers
             return Ok(admins);
         }
 
-        // Admin only — Assign a role to a user (this is how a user becomes a Trainer)
+        // Required: Admin only - Assign a role to a user (promote/change roles)
         [HttpPost("AssignRole")]
         public async Task<IActionResult> AssignRole([FromBody] AssignRoleDTO dto)
         {
@@ -82,7 +84,7 @@ namespace GymMembershipManagement.API.Controllers
             return Ok("Role assigned successfully.");
         }
 
-        // Admin only — Remove a role from a user
+        // Required: Admin only - Remove a role from a user
         [HttpDelete("RemoveRole")]
         public async Task<IActionResult> RemoveRole([FromBody] AssignRoleDTO dto)
         {
@@ -91,7 +93,7 @@ namespace GymMembershipManagement.API.Controllers
             return Ok("Role removed successfully.");
         }
 
-        // Admin only — Update trainer details
+        // Required: Admin only - Update trainer details
         [HttpPut("UpdateTrainer/{userId:int}")]
         public async Task<IActionResult> UpdateTrainer(int userId, [FromBody] UpdateUserModel model)
         {

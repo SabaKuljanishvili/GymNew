@@ -1,5 +1,6 @@
 using GymMembershipManagement.SERVICE.DTOs.Membership;
 using GymMembershipManagement.SERVICE.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymMembershipManagement.API.Controllers
@@ -15,8 +16,9 @@ namespace GymMembershipManagement.API.Controllers
             _membershipService = membershipService;
         }
 
-        // Admin only
+        // Required: Admin only - Register new membership
         [HttpPost("Register")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<MembershipDTO>> RegisterMembership([FromBody] RegisterMembershipDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -24,8 +26,9 @@ namespace GymMembershipManagement.API.Controllers
             return Ok(result);
         }
 
-        // Admin only
+        // Required: Admin only - Renew membership
         [HttpPut("Renew/{membershipId:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<bool>> RenewMembership(int membershipId)
         {
             var result = await _membershipService.RenewMembership(membershipId);
@@ -33,8 +36,9 @@ namespace GymMembershipManagement.API.Controllers
             return Ok(result);
         }
 
-        // Admin only — Edit membership details
+        // Required: Admin only - Update membership details
         [HttpPut("Update/{membershipId:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateMembership(int membershipId, [FromBody] UpdateMembershipDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -43,8 +47,9 @@ namespace GymMembershipManagement.API.Controllers
             return Ok("Membership updated successfully.");
         }
 
-        // Admin only — Delete a membership
+        // Required: Admin only - Delete membership
         [HttpDelete("Delete/{membershipId:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteMembership(int membershipId)
         {
             var result = await _membershipService.DeleteMembership(membershipId);
@@ -52,24 +57,27 @@ namespace GymMembershipManagement.API.Controllers
             return Ok("Membership deleted successfully.");
         }
 
-        // Admin, Trainer, Member
+        // Required: Any authenticated user - Check own membership status
         [HttpGet("Status/{customerId:int}")]
+        [Authorize(Roles = "Member,Trainer,Admin")]
         public async Task<ActionResult<MembershipStatusDTO>> GetMembershipStatus(int customerId)
         {
             var status = await _membershipService.GetMembershipStatus(customerId);
             return Ok(status);
         }
 
-        // Admin, Trainer
+        // Required: Admin, Trainer - Get user's memberships
         [HttpGet("ByUser/{userId:int}")]
+        [Authorize(Roles = "Admin,Trainer")]
         public async Task<ActionResult<IEnumerable<MembershipDTO>>> GetMembershipsByUser(int userId)
         {
             var memberships = await _membershipService.GetMembershipsByUser(userId);
             return Ok(memberships);
         }
 
-        // Admin, Trainer
+        // Required: Admin, Trainer - Get active memberships
         [HttpGet("Active")]
+        [Authorize(Roles = "Admin,Trainer")]
         public async Task<ActionResult<IEnumerable<MembershipDTO>>> GetMembershipsByStatus()
         {
             var memberships = await _membershipService.GetMembershipsByStatus();
