@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gym Membership API - Swagger UI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui.css">
+    <link rel="icon" type="image/png" href="https://fastapi.tiangolo.com/img/favicon.png" sizes="32x32" />
+    <style>
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin: 0;
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-bundle.js" charset="UTF-8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+    <script>
+        // Configuration for Swagger UI
+        const ui = SwaggerUIBundle({
+            url: "/swagger/v1/swagger.json",
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIStandalonePreset
+            ],
+            plugins: [
+                SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            layout: "StandaloneLayout",
+            persistAuthorization: true,
+            defaultModelsExpandDepth: 1,
+            defaultModelExpandDepth: 1,
+            onComplete: function() {
+                console.log('Swagger UI loaded');
+                initializeAutoAuthorization();
+            }
+        });
+
+        // Auto-Authorization Logic
+        function initializeAutoAuthorization() {
+            // Check if token exists in localStorage
+            const savedToken = localStorage.getItem('gym-auth-token');
+            
+            if (savedToken) {
+                console.log('🔐 Found saved token, auto-authorizing...');
+                authorizeWithToken(savedToken);
+            } else {
+                console.log('ℹ️ No saved token found. Login first.');
+            }
+
+            // Intercept Login responses to auto-save token
+            interceptLoginResponse();
+        }
+
+        // Function to authorize with token
+        function authorizeWithToken(token) {
+            // Get the authorize button
+            const authButton = document.querySelector('[data-toggle="modal"][data-target="#swagger-ui-standalone-auth-modal"]');
+            
+            if (authButton) {
+                // Click authorize button
+                authButton.click();
+                
+                // Wait for modal and fill token
+                setTimeout(function() {
+                    const tokenInput = document.querySelector('input[type="text"][placeholder="api_key"]');
+                    if (tokenInput) {
+                        tokenInput.value = token;
+                        
+                        // Find and click Authorize button in modal
+                        const authorizeBtn = document.querySelector('button.authorize[data-dismiss="modal"]');
+                        if (authorizeBtn) {
+                            authorizeBtn.click();
+                            console.log('✅ Token authorized in Swagger UI');
+                        }
+                    }
+                }, 500);
+            }
+        }
+
+        // Function to intercept Login endpoint responses
+        function interceptLoginResponse() {
+            // Get original fetch
+            const originalFetch = window.fetch;
+
+            // Override fetch
+            window.fetch = function(...args) {
+                const request = args[0];
+
+                return originalFetch.apply(this, args)
+                    .then(async (response) => {
+                        // Check if this is login endpoint
+                        if (request.includes('/api/user/Login') && response.ok) {
+                            try {
+                                const clonedResponse = response.clone();
+                                const data = await clonedResponse.json();
+
+                                // If response has token
+                                if (data.token) {
+                                    console.log('🔓 Login successful, saving token...');
+                                    
+                                    // Save token to localStorage
+                                    localStorage.setItem('gym-auth-token', data.token);
+                                    
+                                    // Auto-authorize
+                                    setTimeout(() => {
+                                        authorizeWithToken(data.token);
+                                    }, 500);
+
+                                    // Return original response for UI
+                                    return response;
+                                }
+                            } catch (error) {
+                                console.log('Error processing login response:', error);
+                                return response;
+                            }
+                        }
+
+                        return response;
+                    });
+            };
+        }
+
+        // Make ui accessible globally
+        window.ui = ui;
+    </script>
+</body>
+</html>

@@ -148,6 +148,9 @@ namespace GymMembershipManagement.API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Gym API V1");
                 c.RoutePrefix = "swagger";
+
+                // Inject custom script for auto-authorization and token management
+                c.InjectJavascript("/swagger-auto-auth.js");
             });
 
             app.UseStaticFiles();
