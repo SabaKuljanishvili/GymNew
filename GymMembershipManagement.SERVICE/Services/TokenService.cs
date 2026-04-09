@@ -31,6 +31,12 @@ namespace GymMembershipManagement.SERVICE.Services
             if (string.IsNullOrWhiteSpace(secretKey))
                 throw new InvalidOperationException("JWT SecretKey is not configured.");
 
+            // Ensure user has a role
+            if (user.UserRoles == null || !user.UserRoles.Any())
+            {
+                throw new InvalidOperationException($"User {user.UserId} ({user.Email}) has no role assigned. Please assign a role before generating token.");
+            }
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -43,13 +49,14 @@ namespace GymMembershipManagement.SERVICE.Services
 
             // Add only the primary (first) role as a claim
             // Each user should have exactly one role
-            if (user.UserRoles != null && user.UserRoles.Any())
+            var primaryRole = user.UserRoles.FirstOrDefault();
+            if (primaryRole != null && primaryRole.Role != null)
             {
-                var primaryRole = user.UserRoles.FirstOrDefault();
-                if (primaryRole != null)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, primaryRole.Role.RoleName));
-                }
+                claims.Add(new Claim(ClaimTypes.Role, primaryRole.Role.RoleName));
+            }
+            else
+            {
+                throw new InvalidOperationException($"User {user.UserId} has invalid role data. Role cannot be null.");
             }
 
             var token = new JwtSecurityToken(
